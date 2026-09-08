@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Gaegu', 'Jua', cursive, sans-serif;
+    background-color: #fdfbf7;
+    color: #4a453e;
+  }
+}
+
+.font-sketch {
+  font-family: 'Gaegu', cursive, sans-serif;
+}
+
+.font-jua {
+  font-family: 'Jua', sans-serif;
+}
+
+/* 5-year old sketchpad notebook paper grid background */
+.sketch-paper {
+  background-color: #fffef9;
+  background-image: 
+    linear-gradient(90deg, rgba(238, 235, 220, 0.5) 1px, transparent 1px),
+    linear-gradient(rgba(238, 235, 220, 0.5) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Hand-drawn sketch border effect */
+.sketch-border {
+  border: 2px dashed #b5a48b;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 2px 3px 0px rgba(181, 164, 139, 0.3);
+}
+
+.sketch-card {
+  border: 2px solid #d4c5ab;
+  border-radius: 18px 255px 22px 255px/255px 18px 255px 22px;
+  background: #ffffff;
+  box-shadow: 3px 4px 0px rgba(212, 197, 171, 0.4);
+}
+
+.sketch-button {
+  border: 2px solid #a39274;
+  border-radius: 255px 25px 225px 25px/25px 225px 25px 255px;
+  transition: all 0.2s ease;
+}
+
+.sketch-button:hover {
+  transform: translateY(-2px) rotate(-1deg);
+  box-shadow: 2px 5px 0px rgba(163, 146, 116, 0.4);
+}
+
+.sketch-input {
+  border: 2px dashed #b5a48b;
+  border-radius: 12px 255px 15px 255px/255px 12px 255px 15px;
+  background: #fffdfa;
+  outline: none;
+}
+
+.sketch-input:focus {
+  border-style: solid;
+  border-color: #8c7853;
+  box-shadow: 0 0 0 3px rgba(230, 215, 180, 0.5);
+}
+
