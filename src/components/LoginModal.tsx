@@ -48,14 +48,8 @@ export function LoginModal({ onLoginSuccess, onOpenSupabaseSetup }: LoginModalPr
     }
 
     if (!supabase) {
-      if (email && password.length >= 4) {
-        localStorage.setItem('sketch_user_session', email);
-        onLoginSuccess(email);
-        return;
-      } else {
-        setErrorMsg('Supabase가 연결되지 않았습니다. (데모 모드: 비밀번호 4자리 이상 입력 시 체험 가능)');
-        return;
-      }
+      setErrorMsg('Supabase가 설정되지 않았습니다. 상단의 [설정하기]를 통해 Supabase 연결을 완료해주세요.');
+      return;
     }
 
     setLoading(true);
@@ -102,12 +96,6 @@ export function LoginModal({ onLoginSuccess, onOpenSupabaseSetup }: LoginModalPr
     } catch (err: any) {
       setErrorMsg(err.message || `${provider} 로그인 중 오류가 발생했습니다.`);
     }
-  };
-
-  const handleDemoLogin = () => {
-    const demoEmail = 'squirrel_admin@company.com';
-    localStorage.setItem('sketch_user_session', demoEmail);
-    onLoginSuccess(demoEmail);
   };
 
   return (
@@ -262,21 +250,13 @@ export function LoginModal({ onLoginSuccess, onOpenSupabaseSetup }: LoginModalPr
           </div>
         )}
 
-        <div className="mt-4 flex items-center justify-between text-xs text-[#8c7853]">
+        <div className="mt-4 flex items-center justify-center text-xs text-[#8c7853]">
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
             className="hover:underline font-bold"
           >
             {isSignUp ? '← 로그인으로 돌아가기' : '✨ Supabase 회원가입'}
-          </button>
-          
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            className="text-emerald-700 font-bold hover:underline bg-[#e6f4ea] px-2 py-1 rounded-lg"
-          >
-            🚀 데모 체험 로그인
           </button>
         </div>
 
