@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TeamMember, ScheduleCategory, ScheduleItem, ViewMode } from './types';
 import { initialMembers, initialCategories, initialSchedules } from './data/initialData';
 import { FlyingSquirrels } from './components/FlyingSquirrels';
@@ -8,9 +8,17 @@ import { MonthlyView } from './components/MonthlyView';
 import { TeamManagerModal } from './components/TeamManagerModal';
 import { CategoryManagerModal } from './components/CategoryManagerModal';
 import { ScheduleModal } from './components/ScheduleModal';
-import { Sparkles } from 'lucide-react';
+import { LoginModal } from './components/LoginModal';
+import { SupabaseSetupModal } from './components/SupabaseSetupModal';
+import { CsvManagerModal } from './components/CsvManagerModal';
+import { supabase } from './lib/supabase';
 
 export default function App() {
+  // Authentication state
+  const [userEmail, setUserEmail] = useState<string | null>(() => {
+    return localStorage.getItem('sketch_user_session');
+  });
+
   // State with localStorage persistence
   const [members, setMembers] = useState<TeamMember[]>(() => {
     const saved = localStorage.getItem('sketch_team_members');
@@ -34,8 +42,23 @@ export default function App() {
   const [isTeamManagerOpen, setIsTeamManagerOpen] = useState(false);
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isCsvManagerOpen, setIsCsvManagerOpen] = useState(false);
+  const [isSupabaseSetupOpen, setIsSupabaseSetupOpen] = useState(false);
+
   const [selectedDateForSchedule, setSelectedDateForSchedule] = useState<string>('');
   const [scheduleToEdit, setScheduleToEdit] = useState<ScheduleItem | null>(null);
+
+  // Check Supabase session on mount
+  useEffect(() => {
+    if (supabase) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.email) {
+          setUserEmail(session.user.email);
+          localStorage.setItem('sketch_user_session', session.user.email);
+        }
+      });
+    }
+  }, []);
 
   // Save to localStorage whenever state changes
   useEffect(() => {
@@ -133,6 +156,12 @@ export default function App() {
     }
   };
 
+  // CSV Import Accumulation Handler
+  const handleImportSchedules = (newSchedules: ScheduleItem[]) => {
+    // Accumulate (누적 저장)
+    setSchedules((prev) => [...prev, ...newSchedules]);
+  };
+
   const handleOpenAddScheduleForDate = (dateStr: string) => {
     setSelectedDateForSchedule(dateStr);
     setScheduleToEdit(null);
@@ -144,6 +173,32 @@ export default function App() {
     setSelectedDateForSchedule(sch.startDate);
     setIsScheduleModalOpen(true);
   };
+
+  const handleLogout = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    localStorage.removeItem('sketch_user_session');
+    setUserEmail(null);
+  };
+
+  // If not logged in, show Login Modal
+  if (!userEmail) {
+    return (
+      <div className="min-h-screen sketch-paper relative p-4 flex items-center justify-center">
+        <FlyingSquirrels />
+        <LoginModal
+          onLoginSuccess={(email) => setUserEmail(email)}
+          onOpenSupabaseSetup={() => setIsSupabaseSetupOpen(true)}
+        />
+        <SupabaseSetupModal
+          isOpen={isSupabaseSetupOpen}
+          onClose={() => setIsSupabaseSetupOpen(false)}
+          onSaveConfig={() => {}}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen sketch-paper relative p-4 sm:p-8 flex flex-col justify-between">
@@ -166,6 +221,10 @@ export default function App() {
             setSelectedDateForSchedule(new Date().toISOString().split('T')[0]);
             setIsScheduleModalOpen(true);
           }}
+          onOpenCsvManager={() => setIsCsvManagerOpen(true)}
+          onOpenSupabaseSetup={() => setIsSupabaseSetupOpen(true)}
+          userEmail={userEmail}
+          onLogout={handleLogout}
         />
 
         {/* Main Content: Weekly or Monthly View */}
@@ -194,7 +253,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="text-center py-6 text-xs text-[#9c8b70] z-10 font-sketch">
-        🌰 5살 다람쥐의 스케치북 — 팀원 일정 관리 프로그램 (휴가 / 야간근무 / 출장) ✨
+        🌰 5살 다람쥐의 스케치북 — 팀원 일정 관리 프로그램 (휴가 / 야간근무 / 출장) ✨ Supabase 인증 및 CSV 누적 저장 연동
       </footer>
 
       {/* Modals */}
@@ -226,6 +285,21 @@ export default function App() {
         onAddSchedule={handleAddSchedule}
         onUpdateSchedule={handleUpdateSchedule}
         onDeleteSchedule={handleDeleteSchedule}
+      />
+
+      <CsvManagerModal
+        isOpen={isCsvManagerOpen}
+        onClose={() => setIsCsvManagerOpen(false)}
+        members={members}
+        categories={categories}
+        schedules={schedules}
+        onImportSchedules={handleImportSchedules}
+      />
+
+      <SupabaseSetupModal
+        isOpen={isSupabaseSetupOpen}
+        onClose={() => setIsSupabaseSetupOpen(false)}
+        onSaveConfig={() => {}}
       />
     </div>
   );

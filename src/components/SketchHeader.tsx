@@ -1,5 +1,6 @@
+import React from 'react';
 import { ViewMode } from '../types';
-import { Calendar as CalendarIcon, Users, Tag, Plus, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { Calendar as CalendarIcon, Users, Tag, Plus, ChevronLeft, ChevronRight, FileSpreadsheet, Database, LogOut, User } from 'lucide-react';
 
 interface SketchHeaderProps {
   currentDate: Date;
@@ -11,6 +12,10 @@ interface SketchHeaderProps {
   onOpenTeamManager: () => void;
   onOpenCategoryManager: () => void;
   onOpenAddSchedule: () => void;
+  onOpenCsvManager: () => void;
+  onOpenSupabaseSetup: () => void;
+  userEmail: string | null;
+  onLogout: () => void;
 }
 
 export function SketchHeader({
@@ -23,6 +28,10 @@ export function SketchHeader({
   onOpenTeamManager,
   onOpenCategoryManager,
   onOpenAddSchedule,
+  onOpenCsvManager,
+  onOpenSupabaseSetup,
+  userEmail,
+  onLogout,
 }: SketchHeaderProps) {
   const formatDateTitle = () => {
     const year = currentDate.getFullYear();
@@ -37,6 +46,36 @@ export function SketchHeader({
 
   return (
     <header className="sketch-card bg-[#fffef9] p-4 sm:p-6 mb-6">
+      {/* Top User & Auth Bar */}
+      <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#f0e6d2]">
+        <div className="flex items-center gap-2 text-xs text-[#7a6b52] font-bold">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Supabase 보안 인증 연동 완료</span>
+          {userEmail && (
+            <span className="bg-[#fcf8f0] px-2.5 py-1 rounded-full border border-[#e3d5b8] text-[#594a32] flex items-center gap-1 ml-2">
+              <User size={12} /> {userEmail}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpenSupabaseSetup}
+            className="text-xs text-[#7a6b52] hover:text-[#594a32] flex items-center gap-1 font-bold px-2 py-1 rounded bg-[#f5ebd7]"
+            title="Supabase DB 설정"
+          >
+            <Database size={14} /> DB 설정
+          </button>
+          <button
+            onClick={onLogout}
+            className="text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 font-bold px-2 py-1 rounded bg-[#ffe3e3]"
+            title="로그아웃"
+          >
+            <LogOut size={14} /> 로그아웃
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Title & Brand */}
         <div className="flex items-center gap-3">
@@ -73,8 +112,15 @@ export function SketchHeader({
           </button>
 
           <button
+            onClick={onOpenCsvManager}
+            className="sketch-button px-3.5 py-2 bg-[#d9f7be] hover:bg-[#b7eb8f] text-[#237804] text-sm font-bold flex items-center gap-1.5 shadow-xs"
+          >
+            <FileSpreadsheet size={16} /> CSV 연동
+          </button>
+
+          <button
             onClick={onOpenAddSchedule}
-            className="sketch-button px-4 py-2 bg-[#d9f7be] hover:bg-[#b7eb8f] text-[#237804] text-sm font-bold flex items-center gap-1.5 shadow-sm"
+            className="sketch-button px-4 py-2 bg-[#ffe8a3] hover:bg-[#ffd166] text-[#874d00] text-sm font-bold flex items-center gap-1.5 shadow-sm"
           >
             <Plus size={18} /> 일정 등록하기
           </button>
